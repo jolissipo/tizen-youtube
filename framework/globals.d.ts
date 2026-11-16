@@ -65,3 +65,15 @@ declare module '*.css' {
     const contents: string;
     export default contents;
 }
+
+// Samsung's app-control API is optional inside Cobalt. Only the subset used by
+// the Smart Hub deep-link integration is declared here.
+declare const tizen: {
+    application?: {
+        getCurrentApplication(): {
+            getRequestedAppControl(): {
+                appControl?: { data?: Array<{ key: string; value: string[] }> }
+            } | null
+        }
+    }
+};

@@ -8,6 +8,11 @@
     <feature name="http://tizen.org/feature/screen.size.all"/>
     <feature name="http://tizen.org/feature/web.service"/>
     <icon src="icon.png"/>
+    <tizen:metadata key="http://samsung.com/tv/metadata/use.preview" value="bg_service"/>
+    <tizen:app-control>
+        <tizen:src name="index.html" reload="disable"/>
+        <tizen:operation name="http://samsung.com/appcontrol/operation/eden_resume"/>
+    </tizen:app-control>
 
     <tizen:metadata key="http://samsung.com/tv/metadata/prelaunch.support" value="true"/>
     <tizen:metadata key="http://samsung.com/tv/metadata/floating.navigation" value="false"/>
@@ -44,5 +49,11 @@
         <tizen:content src="service/dist/index.js"/>
         <tizen:name>TubeService</tizen:name>
         <tizen:description>The proxy and userscript injection.</tizen:description>
+    </tizen:service>
+    <tizen:service id="tUb3Xq7Lm9.TubePreview" auto-restart="false">
+        <tizen:content src="service/preview.js"/>
+        <tizen:name>TubePreview</tizen:name>
+        <tizen:description>Samsung Smart Hub personal preview</tizen:description>
+        <tizen:category name="http://tizen.org/category/service"/>
     </tizen:service>
 </widget>

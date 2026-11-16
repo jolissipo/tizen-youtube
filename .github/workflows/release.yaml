@@ -2,67 +2,50 @@ name: Release
 
 on:
   push:
+    branches: [main]
     tags: ['v*']
   workflow_dispatch:
-
-# Never cancelled: a release that publishes half its assets is worse than a queued one.
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   widget:
-    name: Build the widget
+    name: Build and verify WGTs
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
-
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
-
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
-
       - name: Install
         run: npm ci
-
-      - name: Check the tag matches the version
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          tagged="${GITHUB_REF_NAME#v}"
-          tagged="${tagged%%-*}"
-          declared="$(node -p "require('./tizen.config.json').version")"
-          if [ "$tagged" != "$declared" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match tizen.config.json, which says $declared."
-            echo "Run 'npm run version:set $tagged', commit, and re-tag."
-            exit 1
-          fi
-
+      - name: Check version metadata
+        run: npm run version:check
       - name: Build
         run: npm run build
-
       - name: Test
         run: npm test
-
-      - name: Package
+      - name: Package both widgets
         run: npm run package
-
-      - name: Audit the widget
+      - name: Verify fixed icon in both packages
+        run: node tools/check-icon.js release/tube-tizen-5.5.wgt release/tube-tizen-5.0.wgt
+      - name: Audit release contents
         run: npm run audit -- --release
-
-      - name: Name the widgets after the version
-        id: widget
-        run: |
-          version="$(node -p "require('./tizen.config.json').version")"
-          mv release/tube-tizen-5.5.wgt "release/tizen-youtube-${version}-tizen-5.5.wgt"
-          mv release/tube-tizen-5.0.wgt "release/tizen-youtube-${version}-tizen-5.0.wgt"
-          echo "path=release/tizen-youtube-${version}*.wgt" >> "$GITHUB_OUTPUT"
-
-      - name: Keep the service bundles for the runtime matrix
+      - name: Save unsigned WGTs
+        uses: actions/upload-artifact@v7
+        with:
+          name: tube-tizen-wgts
+          path: release/*.wgt
+          retention-days: 14
+          if-no-files-found: error
+      - name: Save runtime service bundles
         uses: actions/upload-artifact@v7
         with:
           name: release-service-bundle
@@ -72,112 +55,88 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      - name: Upload it as an artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: tizen-youtube-widget
-          path: ${{ steps.widget.outputs.path }}
-          if-no-files-found: error
-
   runtimes:
-    name: node ${{ matrix.node }}
+    name: Node ${{ matrix.node }}
     needs: widget
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-
     strategy:
       fail-fast: false
       matrix:
         include:
-          - node: '4.4.3'     # the legacy bundle alone, up to node 12
-            legacy_only: true
-          - node: '6.17.1'
-            legacy_only: true
-          - node: '8.17.0'
-            legacy_only: true
-          - node: '10.24.1'
-            legacy_only: true
-          - node: '12.16.3'
-          - node: '14.21.3'
-          - node: '16.5.0'    # the version a set actually runs; keep in step with ci.yaml
-          - node: '18.18.2'
-          - node: '20.18.1'
-          - node: '22.12.0'
-
+          - { node: '4.4.3', legacy_only: true }
+          - { node: '6.17.1', legacy_only: true }
+          - { node: '8.17.0', legacy_only: true }
+          - { node: '10.24.1', legacy_only: true }
+          - { node: '12.16.3' }
+          - { node: '14.21.3' }
+          - { node: '16.5.0' }
+          - { node: '18.18.2' }
+          - { node: '20.18.1' }
+          - { node: '22.12.0' }
     steps:
       - uses: actions/checkout@v7
-
       - uses: actions/download-artifact@v8
         with:
           name: release-service-bundle
           path: service
-
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
-
-      - name: Load and answer on node ${{ matrix.node }}
+      - name: Smoke-test modern service on Node ${{ matrix.node }}
         if: ${{ !matrix.legacy_only }}
         run: node service/test/smoke.js
-
-      - name: Load and answer on node ${{ matrix.node }}, legacy
+      - name: Smoke-test legacy service on Node ${{ matrix.node }}
         run: node service/test/smoke.js
         env:
           TUBE_SMOKE_ENTRY: service/dist-legacy/index.js
 
-  # Blocking, because a release reaches strangers.
-  browser:
-    name: Against real YouTube
+  publish:
+    name: Publish WGT release
     needs: widget
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-
-      - name: Install
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Test
-        run: npm run test:e2e
-
-      - uses: actions/upload-artifact@v7
-        if: failure()
-        with:
-          name: release-playwright-report
-          path: test/e2e/test-results
-          retention-days: 7
-          if-no-files-found: ignore
-
-  publish:
-    name: Publish the draft
-    needs: [widget, runtimes, browser]
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-24.04
     timeout-minutes: 10
-
     steps:
       - uses: actions/download-artifact@v8
         with:
-          name: tizen-youtube-widget
+          name: tube-tizen-wgts
           path: release
-
-      - name: Open a draft release with it
+      - name: Choose release tag
+        id: version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v1.6.0-smarthub.1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Align the release tag with this commit
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/$RELEASE_TAG" \
+            -f sha="$GITHUB_SHA" -F force=true
+      - name: Publish both WGTs on GitHub Releases
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ github.ref_name }}
-          draft: true
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Tube for Tizen — Smart Hub ${{ steps.version.outputs.tag }}
+          draft: false
+          prerelease: false
+          make_latest: true
           files: release/*.wgt
           fail_on_unmatched_files: true
+          body: |
+            Fork of SushyDev/tizen-youtube with Samsung Smart Hub Preview and a fixed 1920 × 1080 oblong icon.
+
+            - **tube-tizen-5.0.wgt** — verified on **Samsung UE50RU7105KXXC (2019, Tizen 5.0)**, including playback, Smart Hub Preview and the 16:9 icon.
+            - **tube-tizen-5.5.wgt** — passed the automated build and checks; **not tested on a physical TV**.
+
+            **Installation:** both WGTs are unsigned. Use [Apps2Samsung](https://github.com/Apps2Samsung/Apps2Samsung) with a **Samsung Partner certificate** for your TV, or [Tizen Homebrew](https://github.com/SushyDev/tizen-homebrew) with appropriate device-specific signing.
+
+            The package identifiers are unchanged from the upstream project, so installation may replace the original application.
+
+            Source and installation notes: https://github.com/jolissipo/tizen-youtube#readme

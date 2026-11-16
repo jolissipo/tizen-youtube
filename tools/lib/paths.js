@@ -18,8 +18,9 @@ const WGT_LEGACY = 'release/tube-tizen-5.0.wgt';
 // reads ../../config.xml from service/dist/, so config.xml must land at the top of the widget.
 const WIDGET = [
     { from: 'app/config.xml', to: 'config.xml' },
-    { from: 'app/icon.png', to: 'icon.png' },
+    { from: 'app/icon-oblong.png', to: 'icon.png' },
     { from: 'app/index.html', to: 'index.html' },
+    { from: 'service/preview.js', to: 'service/preview.js' },
     { from: 'service/dist', to: 'service/dist' }
 ];
 
