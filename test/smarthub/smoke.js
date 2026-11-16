@@ -5,6 +5,7 @@ const fs = require('fs');
 const vm = require('vm');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const ROOT = path.resolve(__dirname, '../..');
 
 const source = fs.readFileSync(path.join(ROOT, 'service/lib/smartHub.js'), 'utf8');
@@ -56,5 +57,6 @@ const icon = fs.readFileSync(path.join(ROOT, 'app/icon-oblong.png'));
 assert.strictEqual(icon.toString('hex', 0, 8), '89504e470d0a1a0a');
 assert.strictEqual(icon.readUInt32BE(16), 1920);
 assert.strictEqual(icon.readUInt32BE(20), 1080);
+assert.strictEqual(crypto.createHash('sha256').update(icon).digest('hex'), '2b73db3b69eb072549814648a27982c1137642c641e04aa38e8ed86ce5b67dcd');
 
 console.log('3/3 checks passed');
