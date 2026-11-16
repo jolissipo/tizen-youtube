@@ -308,7 +308,7 @@ module.exports = [
             globals: BROWSER_GLOBALS
         },
         rules: CORRECTNESS_RULES
-    }
+    },
     // The PNG encoder needs pixel loops, and the preview service targets Node 4.
     { files: ['tools/icon-oblong.js', 'service/preview.js'],
         rules: { 'no-restricted-syntax': 'off', 'no-var': 'off', 'prefer-const': 'off' } },
