@@ -83,9 +83,6 @@ const CORRECTNESS_RULES = {
 // Exempt because live sibling branches own them and a reshape here would conflict on every restack.
 const SIBLING_OWNED = [
     'mods/player/pictureInPicture.js'
-    // The PNG encoder needs pixel loops and the standalone preview service must support Node 4.
-    { files: ['tools/icon-oblong.js', 'service/preview.js'],
-        rules: { 'no-restricted-syntax': 'off', 'no-var': 'off', 'prefer-const': 'off' } },
 ];
 
 // interpreters.js is frozen too (deep-imports pictureInPicture.js/speed.js/settingsOptions.js) but kept out of SIBLING_OWNED so it doesn't also inherit their style/tsc exemptions.
@@ -312,4 +309,7 @@ module.exports = [
         },
         rules: CORRECTNESS_RULES
     }
+    // The PNG encoder needs pixel loops, and the preview service targets Node 4.
+    { files: ['tools/icon-oblong.js', 'service/preview.js'],
+        rules: { 'no-restricted-syntax': 'off', 'no-var': 'off', 'prefer-const': 'off' } },
 ];

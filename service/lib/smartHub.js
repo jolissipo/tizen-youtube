@@ -63,6 +63,8 @@ const wakePreview = () => {
     }
 };
 
+const parseBody = (text) => { try { return JSON.parse(text); } catch (error) { return null; } };
+
 const attach = (app) => {
     app.post('/__tube/smart-hub/feed', (req, res) => {
         if (!fromThisTv(req)) return res.status(403).end();
@@ -79,7 +81,7 @@ const attach = (app) => {
         req.on('end', () => {
             if (received.tooLarge) return;
             const text = Buffer.concat(chunks).toString('utf8');
-            const parsed = (() => { try { return JSON.parse(text); } catch (error) { return null; } })();
+            const parsed = parseBody(text);
             if (!parsed) return res.status(400).end();
             const feed = format(parsed);
             if (!feed) return res.status(422).end();
