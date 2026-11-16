@@ -26,7 +26,7 @@ const inspect = async (filename) => {
     const manifest = zip.file('config.xml');
     assert(manifest, filename + ' has no config.xml');
     const xml = await manifest.async('string');
-    assert(/<icon\\s+src="icon\\.png"\\s*\\/>/.test(xml), filename + ' does not reference icon.png');
+    assert(/<icon\s+src="icon\.png"\s*\/>/.test(xml), filename + ' does not reference icon.png');
     console.log(path.basename(filename) + ': original PNG preserved byte-for-byte');
 };
 
