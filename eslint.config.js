@@ -309,7 +309,7 @@ module.exports = [
         },
         rules: CORRECTNESS_RULES
     },
-    // The PNG encoder needs pixel loops, and the preview service targets Node 4.
-    { files: ['tools/icon-oblong.js', 'service/preview.js'],
+    // The preview service runs on the older Tizen Node runtime.
+    { files: ['service/preview.js'],
         rules: { 'no-restricted-syntax': 'off', 'no-var': 'off', 'prefer-const': 'off' } },
 ];

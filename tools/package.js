@@ -202,7 +202,7 @@ async function writeWidget(staging, outPath) {
 
     addTree(zip, staging, staging);
 
-    // The widget must contain the approved, committed PNG byte-for-byte.
+    // The WGT must contain the committed launcher icon without modification.
     const expected = readFileSync(join(ROOT, 'app/icon-oblong.png'));
     const icon = zip.file('icon.png');
     if (!icon) throw friendly('the staged widget does not contain icon.png');
