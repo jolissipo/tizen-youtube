@@ -12,6 +12,7 @@ import { start as startSmoothNavigation } from './scroller/smoothNavigation.js';
 import { start as startSpeed } from './player/speed.js';
 
 import './feed/index.js';
+import './smartHub/index.js';
 import './adblock/index.js';
 import './dearrow/index.js';
 import './thumbnails/index.js';

@@ -34,6 +34,7 @@ const upgrade = require('./lib/upgrade.js');
 const knobs = require('./lib/knobs.js');
 const sending = require('./lib/sending.js');
 const addressWatch = require('./lib/addressWatch.js');
+const smartHub = require('./lib/smartHub.js');
 
 // A cobalt.js that will not load must not stop the proxy starting.
 const cobalt = require('./lib/cobaltIfItLoads.js')();
@@ -95,6 +96,7 @@ const retraceOnBoot = (line) => {
 journalRoutes.attach(app, { heard: retraceOnBoot });
 bootRoutes.attach(app, { cobalt, script: userScript });
 diagRoutes.attach(app);
+smartHub.attach(app);
 
 // dev/ may not know about the container route, and on a set without one it is absent.
 dev.routes(app, {
