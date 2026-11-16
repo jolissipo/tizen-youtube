@@ -15,6 +15,7 @@ assert.strictEqual(icon.toString('hex', 0, 8), '89504e470d0a1a0a', 'icon must be
 assert.strictEqual(icon.readUInt32BE(16), 1920, 'icon width must be 1920');
 assert.strictEqual(icon.readUInt32BE(20), 1080, 'icon height must be 1080');
 const digest = crypto.createHash('sha256').update(icon).digest('hex');
+assert.strictEqual(digest, '2b73db3b69eb072549814648a27982c1137642c641e04aa38e8ed86ce5b67dcd', 'the image differs from the approved 1920x1080 PNG');
 console.log('Static oblong: 1920x1080, sha256 ' + digest);
 
 const inspect = async (filename) => {
