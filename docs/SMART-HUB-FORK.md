@@ -30,6 +30,6 @@ Jellyfin implementation: https://github.com/jellyfin/jellyfin-tizen/pull/319
 
 ## Build on the fork
 
-Before building, commit the exact approved 1920x1080 PNG to `app/icon-oblong.png` on the feature branch (SHA-256: `2b73db3b69eb072549814648a27982c1137642c641e04aa38e8ed86ce5b67dcd`). This file is intentionally never generated from the square artwork. Both tests and the packaged WGT check reject any other image, even one with identical dimensions.
+To set up the fork for the first time, use **Actions → Freeze approved 16:9 icon → Run workflow** on `main`. This one-time action reproduces and verifies the approved PNG against SHA-256 `2b73db3b69eb072549814648a27982c1137642c641e04aa38e8ed86ce5b67dcd`, then commits `app/icon-oblong.png` to the feature branch. Normal builds **never** regenerate this image. Both tests and the packaged WGT check reject any other image, even one with identical dimensions.
 
 For an unsigned test package, run **Build preview WGTs** (workflow_dispatch), which builds from `feature/oblong-icon-smarthub-preview` and uploads both WGT files as artifacts without publishing a GitHub Release. Check CI on the pull request and verify the Smart Hub behaviour on the TV before merging.
