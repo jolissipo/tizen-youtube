@@ -1,6 +1,6 @@
 'use strict';
 
-// Validate the committed oblong art and verify every packaged WGT preserves it exactly.
+// Verify the launcher icon and its packaged copies.
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -15,8 +15,8 @@ assert.strictEqual(icon.toString('hex', 0, 8), '89504e470d0a1a0a', 'icon must be
 assert.strictEqual(icon.readUInt32BE(16), 1920, 'icon width must be 1920');
 assert.strictEqual(icon.readUInt32BE(20), 1080, 'icon height must be 1080');
 const digest = crypto.createHash('sha256').update(icon).digest('hex');
-assert.strictEqual(digest, '2b73db3b69eb072549814648a27982c1137642c641e04aa38e8ed86ce5b67dcd', 'the image differs from the approved 1920x1080 PNG');
-console.log('Static oblong: 1920x1080, sha256 ' + digest);
+assert.strictEqual(digest, '2b73db3b69eb072549814648a27982c1137642c641e04aa38e8ed86ce5b67dcd', 'icon checksum does not match app/icon-oblong.png');
+console.log('Icon: 1920x1080, SHA-256 ' + digest);
 
 const inspect = async (filename) => {
     const zip = await JSZip.loadAsync(fs.readFileSync(filename));
@@ -28,7 +28,7 @@ const inspect = async (filename) => {
     assert(manifest, filename + ' has no config.xml');
     const xml = await manifest.async('string');
     assert(/<icon\s+src="icon\.png"\s*\/>/.test(xml), filename + ' does not reference icon.png');
-    console.log(path.basename(filename) + ': original PNG preserved byte-for-byte');
+    console.log(path.basename(filename) + ': icon matches app/icon-oblong.png');
 };
 
 Promise.all(process.argv.slice(2).map(inspect)).catch((error) => {

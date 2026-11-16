@@ -1,42 +1,35 @@
-# Tube for Tizen — Smart Hub fork
+# Tube for Tizen — Smart Hub Preview
 
 <p align="center">
-  <img src="app/icon-oblong.png" alt="Tube for Tizen 16:9 launcher artwork" width="420">
+  <img src="app/icon-oblong.png" alt="Tube for Tizen launcher icon" width="420">
 </p>
 
-A fork of [SushyDev/tizen-youtube](https://github.com/SushyDev/tizen-youtube), an ad-free YouTube client for Samsung Tizen TVs that uses Samsung's native Cobalt engine.
+A fork of [SushyDev/tizen-youtube](https://github.com/SushyDev/tizen-youtube) for Samsung Tizen TVs. It retains the upstream YouTube client and adds Smart Hub previews and a 16:9 launcher icon.
 
-This fork keeps the original player's features and adds **Samsung Smart Hub Preview** integration and a **fixed 16:9 launcher icon**.
+## Changes
 
-## What's different
+- **Smart Hub Preview:** displays up to 12 videos from the YouTube feed, with thumbnails, titles and links to open them. A separate Tizen service updates the preview without replacing the existing Cobalt proxy.
+- **16:9 icon:** uses a fixed 1920 × 1080 PNG (`app/icon-oblong.png`). Both WGT variants package the same image without resizing. The build checks its dimensions and file integrity.
 
-- **Smart Hub Preview:** a row of up to 12 YouTube videos from the app's feed, with titles, thumbnails and supported deep links. The preview is published by a dedicated Tizen service; the existing Cobalt proxy service stays active.
-- **Oblong icon:** the approved 1920 × 1080 PNG is stored at `app/icon-oblong.png`. Both WGT packages include it as `icon.png`, without stretching or regeneration. Packaging verifies that the bytes match the committed image.
-- **Checks:** tests cover the preview data, its background service and the icon inside both packaged widgets.
+## Compatibility
 
-There are no changes to the upstream ad blocking, playback engine or player configuration.
-
-## Compatibility and testing
-
-| Package | Minimum Tizen version | Status |
+| Package | Tizen | Tested |
 | --- | --- | --- |
-| `tube-tizen-5.0.wgt` | Tizen 5.0 | **Tested successfully on Samsung UE50RU7105KXXC (2019, Tizen 5.0)**, including Smart Hub Preview and the 16:9 launcher icon. |
-| `tube-tizen-5.5.wgt` | Tizen 5.5 | **Build and automated checks only.** Not tested on a real TV. |
+| `tube-tizen-5.0.wgt` | 5.0+ | Samsung UE50RU7105KXXC (2019, Tizen 5.0): playback, Smart Hub previews and icon |
+| `tube-tizen-5.5.wgt` | 5.5+ | Automated build and tests only; not tested on a TV |
 
-Smart Hub presentation can vary by TV and firmware. One successful device test does not establish compatibility with every Samsung model.
+Other TV models and firmware versions have not been verified for this fork.
 
-## Download and install
+## Installation
 
-Get the two unsigned WGTs from [Releases](https://github.com/jolissipo/tizen-youtube/releases). Choose the build for your Tizen version. **Only install one variant.**
+Download the appropriate unsigned WGT from [Releases](https://github.com/jolissipo/tizen-youtube/releases).
 
-The WGTs are unsigned and require device-specific signing. There are two installation methods:
+- **[Apps2Samsung](https://github.com/Apps2Samsung/Apps2Samsung):** install with a Samsung **Partner certificate** for your TV.
+- **[Tizen Homebrew](https://github.com/SushyDev/tizen-homebrew):** follow its device-specific signing and installation instructions.
 
-- **[Apps2Samsung](https://github.com/Apps2Samsung/Apps2Samsung):** install the downloaded WGT using a **Samsung Partner certificate** issued for your TV, rather than a Public certificate.
-- **[Tizen Homebrew](https://github.com/SushyDev/tizen-homebrew):** use the project's device-specific signing and installation procedure.
+The application identifiers are inherited from the upstream project. Installing this fork may replace the original application.
 
-**Note:** this fork retains the upstream app's package/application identifiers. Installing it may replace an existing installation of the original app. Keep a way to reinstall that version if necessary.
-
-## Build from source
+## Build
 
 Requires Node.js 20 or newer.
 
@@ -45,17 +38,17 @@ git clone https://github.com/jolissipo/tizen-youtube.git
 cd tizen-youtube
 npm ci
 npm run package
-node tools/check-icon.js release/tube-tizen-5.5.wgt release/tube-tizen-5.0.wgt
+node tools/check-icon.js release/tube-tizen-5.0.wgt release/tube-tizen-5.5.wgt
 ```
 
-The unsigned packages are written to `release/`. Run `npm test` for the project's automated test suites. See [the upstream development guide](docs/DEVELOP.md) for the other development commands.
+The unsigned WGTs are written to `release/`. See [DEVELOP.md](docs/DEVELOP.md) for development commands.
 
-## Credits and support
+## Credits
 
-**Original project:** [SushyDev/tizen-youtube](https://github.com/SushyDev/tizen-youtube). All original functionality and upstream acknowledgements belong to its authors and contributors.
+Based on [SushyDev/tizen-youtube](https://github.com/SushyDev/tizen-youtube). The original project and its contributors retain credit for the upstream client.
 
-**Original author's Discord:** [SushyDev's community](https://discord.gg/WjxVnrsV4A). **This Discord is maintained by the original project author, not by the maintainer of this fork.** Questions about this fork's Smart Hub changes should be raised in [this repository's Issues](https://github.com/jolissipo/tizen-youtube/issues), rather than assuming the upstream community supports these modifications.
+[Discord — original project's community](https://discord.gg/WjxVnrsV4A) (run by SushyDev, **not** by this fork's maintainer). For fork-specific issues, use this repository's [Issues](https://github.com/jolissipo/tizen-youtube/issues).
 
-Smart Hub implementation references: [Samsung Smart Hub Preview documentation](https://developer.samsung.com/smarttv/develop/guides/smart-hub-preview/smart-hub-preview.html) and the [Jellyfin Tizen implementation](https://github.com/jellyfin/jellyfin-tizen/pull/319).
+Smart Hub references: [Samsung documentation](https://developer.samsung.com/smarttv/develop/guides/smart-hub-preview/implementing-personal-preview.html) and [Jellyfin Tizen PR #319](https://github.com/jellyfin/jellyfin-tizen/pull/319).
 
-Licensed under **GPL-3.0-only**, as in the upstream project. See [LICENSE](LICENSE). This fork is not affiliated with YouTube, Google or Samsung.
+Licensed under [GPL-3.0-only](LICENSE), as in the upstream project.
