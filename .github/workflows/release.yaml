@@ -51,6 +51,9 @@ jobs:
       - name: Package
         run: npm run package
 
+      - name: Verify the exact static PNG in both widgets
+        run: node tools/check-icon.js release/tube-tizen-5.5.wgt release/tube-tizen-5.0.wgt
+
       - name: Audit the widget
         run: npm run audit -- --release
 

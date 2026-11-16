@@ -11,8 +11,6 @@ const { assertNoTokens } = require('./lib/inject.js');
 
 // Both services embed the userscript, so it builds first.
 const STEPS = [
-    { label: '16:9 Smart Hub icon', target: 'modern', command: ['node', ['tools/icon-oblong.js']],
-        outputs: ['dist/icon-oblong.png'], summarise: (sizes) => ui.bytes(sizes[0]) },
     {
         label: 'userscript bundle',
         target: 'modern',

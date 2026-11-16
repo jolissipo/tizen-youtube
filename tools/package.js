@@ -202,6 +202,13 @@ async function writeWidget(staging, outPath) {
 
     addTree(zip, staging, staging);
 
+    // The widget must contain the approved, committed PNG byte-for-byte.
+    const expected = readFileSync(join(ROOT, 'app/icon-oblong.png'));
+    const icon = zip.file('icon.png');
+    if (!icon) throw friendly('the staged widget does not contain icon.png');
+    const packed = await icon.async('nodebuffer');
+    if (!packed.equals(expected)) throw friendly('the packaged icon differs from app/icon-oblong.png');
+
     writeFileSync(outPath, await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' }));
 }
 

@@ -5,7 +5,6 @@ const fs = require('fs');
 const vm = require('vm');
 const os = require('os');
 const path = require('path');
-const { execFileSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '../..');
 
 const source = fs.readFileSync(path.join(ROOT, 'service/lib/smartHub.js'), 'utf8');
@@ -53,8 +52,7 @@ try {
     fs.rmSync(temporary, { recursive: true, force: true });
 }
 
-execFileSync(process.execPath, [path.join(ROOT, 'tools/icon-oblong.js')], { cwd: ROOT });
-const icon = fs.readFileSync(path.join(ROOT, 'dist/icon-oblong.png'));
+const icon = fs.readFileSync(path.join(ROOT, 'app/icon-oblong.png'));
 assert.strictEqual(icon.toString('hex', 0, 8), '89504e470d0a1a0a');
 assert.strictEqual(icon.readUInt32BE(16), 1920);
 assert.strictEqual(icon.readUInt32BE(20), 1080);

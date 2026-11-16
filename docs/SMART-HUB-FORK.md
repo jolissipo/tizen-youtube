@@ -4,7 +4,7 @@ This fork adds a **16:9 Tizen launcher icon** and a personal Smart Hub preview f
 
 ## Icon
 
-`npm run build` creates `dist/icon-oblong.png` (1920 × 1080) from the square `app/icon.png`. The PNG encoder uses only Node built-ins. `npm run package` includes this rectangular image as the package's root `icon.png` for both Tizen variants. The original source icon remains unchanged.
+`app/icon-oblong.png` is a **fixed, committed 1920 × 1080 PNG**. Normal builds do not generate or stretch it. Both Tizen WGT variants copy it to their archive root as `icon.png`. The original square `app/icon.png` is retained for upstream reference. `npm run package` rejects packages where `icon.png` differs byte-for-byte from the committed image; `node tools/check-icon.js release/tube-tizen-5.5.wgt release/tube-tizen-5.0.wgt` verifies the final archives independently.
 
 ## Preview data flow
 
@@ -27,3 +27,9 @@ Test by installing the unsigned WGT through Tizen Homebrew with device-specific 
 
 Samsung reference: https://developer.samsung.com/smarttv/develop/guides/smart-hub-preview/implementing-personal-preview.html
 Jellyfin implementation: https://github.com/jellyfin/jellyfin-tizen/pull/319
+
+## Build on the fork
+
+On the first setup, run **Prepare fixed oblong icon** once from GitHub Actions. This renders the approved-looking 16:9 artwork from the square original, commits the resulting PNG as a fixed asset on the feature branch, and removes the obsolete generator. No further build regenerates that asset.
+
+For an unsigned test package, run **Build preview WGTs** (workflow_dispatch), which builds from `feature/oblong-icon-smarthub-preview` and uploads both WGT files as artifacts without publishing a GitHub Release. Check CI on the pull request and verify the Smart Hub behaviour on the TV before merging.
